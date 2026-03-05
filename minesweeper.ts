@@ -1,4 +1,12 @@
 // Interfaces
+interface Cell {
+    isMine: boolean;
+    isRevealed: boolean;
+    isFlagged: boolean;
+    adjacentMines: number;
+    element: HTMLElement;
+}
+
 interface DifficultySetting {
     name: string;
     size: {
@@ -9,6 +17,14 @@ interface DifficultySetting {
     tileSize: string;
 }
 
+interface GameState {
+    board: Cell[][];
+    difficulty: DifficultySetting;
+    minesRemaining: number;
+    timer: number;
+    gameOver: boolean;
+}
+
 // Variables & DOM selections
 const DIFFICULTIES: Record<string, DifficultySetting> = {
     easy:   { name: 'Easy',   size: { width: 9,  height: 9  }, numberOfMines: 10, tileSize: '38px' },
@@ -17,7 +33,7 @@ const DIFFICULTIES: Record<string, DifficultySetting> = {
 };
 
 const difficultySelect = document.getElementById('difficulty') as HTMLSelectElement;
-const gameBoardDiv = document.getElementById('game-board') as HTMLDivElement;
+const gameBoard = document.getElementById('game-board') as HTMLDivElement;
 
 const scoreDisplay = document.getElementById('score') as HTMLDivElement;
 const timerDisplay = document.getElementById('timer') as HTMLDivElement;
@@ -33,12 +49,12 @@ Object.entries(DIFFICULTIES).forEach(function ([key, setting]) {
 
 function initGame(difficulty: DifficultySetting): void {
     // Clear the board
-    gameBoardDiv.innerHTML = '';
+    gameBoard.innerHTML = '';
 
     // Set --cols and --rows CSS variables on the board element, also set --tile-size
-    gameBoardDiv.style.setProperty('--cols', difficulty.size.width.toString());
-    gameBoardDiv.style.setProperty('--rows', difficulty.size.height.toString());
-    gameBoardDiv.style.setProperty('--tile-size', difficulty.tileSize);
+    gameBoard.style.setProperty('--cols', difficulty.size.width.toString());
+    gameBoard.style.setProperty('--rows', difficulty.size.height.toString());
+    gameBoard.style.setProperty('--tile-size', difficulty.tileSize);
 
     // Set timer and score displays
     scoreDisplay.textContent = difficulty.numberOfMines.toString();
@@ -49,7 +65,7 @@ function initGame(difficulty: DifficultySetting): void {
     for (let i = 0; i < totalTiles; i++) {
         const tile = document.createElement('div');
         tile.classList.add('tile');
-        gameBoardDiv.appendChild(tile);
+        gameBoard.appendChild(tile);
     }
 }
 
@@ -59,6 +75,30 @@ difficultySelect.addEventListener('change', function() {
     if (selected) {
         initGame(selected);
     }
+});
+
+function revealTile(target: HTMLElement): void {
+    console.log('reveal!');
+}
+
+gameBoard.addEventListener('click', function(event) {
+    // left click - reveal tile
+    // first prevent click on flagged or revealed or non tiles
+    const target = event.target as HTMLElement;
+    if (!target.classList.contains('tile')) return;
+    if (target.classList.contains('revealed')) return;
+    if (target.classList.contains('flagged')) return;
+
+    revealTile(target);
+});
+
+gameBoard.addEventListener('contextmenu', function(event) {
+    event.preventDefault(); // stops the browser context menu from appearing
+    // right click - flag tile
+    const target = event.target as HTMLElement;
+    if (!target.classList.contains('tile')) return;
+    if (target.classList.contains('revealed')) return;
+    target.classList.toggle('flagged');
 });
 
 // Initialization

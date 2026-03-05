@@ -5,7 +5,7 @@ const DIFFICULTIES = {
     hard: { name: 'Hard', size: { width: 30, height: 16 }, numberOfMines: 99, tileSize: '28px' },
 };
 const difficultySelect = document.getElementById('difficulty');
-const gameBoardDiv = document.getElementById('game-board');
+const gameBoard = document.getElementById('game-board');
 const scoreDisplay = document.getElementById('score');
 const timerDisplay = document.getElementById('timer');
 // Game logic, functions, event listeners
@@ -18,11 +18,11 @@ Object.entries(DIFFICULTIES).forEach(function ([key, setting]) {
 });
 function initGame(difficulty) {
     // Clear the board
-    gameBoardDiv.innerHTML = '';
+    gameBoard.innerHTML = '';
     // Set --cols and --rows CSS variables on the board element, also set --tile-size
-    gameBoardDiv.style.setProperty('--cols', difficulty.size.width.toString());
-    gameBoardDiv.style.setProperty('--rows', difficulty.size.height.toString());
-    gameBoardDiv.style.setProperty('--tile-size', difficulty.tileSize);
+    gameBoard.style.setProperty('--cols', difficulty.size.width.toString());
+    gameBoard.style.setProperty('--rows', difficulty.size.height.toString());
+    gameBoard.style.setProperty('--tile-size', difficulty.tileSize);
     // Set timer and score displays
     scoreDisplay.textContent = difficulty.numberOfMines.toString();
     timerDisplay.textContent = '00:00';
@@ -31,7 +31,7 @@ function initGame(difficulty) {
     for (let i = 0; i < totalTiles; i++) {
         const tile = document.createElement('div');
         tile.classList.add('tile');
-        gameBoardDiv.appendChild(tile);
+        gameBoard.appendChild(tile);
     }
 }
 difficultySelect.addEventListener('change', function () {
@@ -40,6 +40,31 @@ difficultySelect.addEventListener('change', function () {
     if (selected) {
         initGame(selected);
     }
+});
+function revealTile(target) {
+    console.log('reveal!');
+}
+gameBoard.addEventListener('click', function (event) {
+    // left click - reveal tile
+    // first prevent click on flagged or revealed or non tiles
+    const target = event.target;
+    if (!target.classList.contains('tile'))
+        return;
+    if (target.classList.contains('revealed'))
+        return;
+    if (target.classList.contains('flagged'))
+        return;
+    revealTile(target);
+});
+gameBoard.addEventListener('contextmenu', function (event) {
+    event.preventDefault(); // stops the browser context menu from appearing
+    // right click - flag tile
+    const target = event.target;
+    if (!target.classList.contains('tile'))
+        return;
+    if (target.classList.contains('revealed'))
+        return;
+    target.classList.toggle('flagged');
 });
 // Initialization
 const initialDifficulty = DIFFICULTIES['easy'];
