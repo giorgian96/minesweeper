@@ -6,6 +6,8 @@ const DIFFICULTIES = {
 };
 const difficultySelect = document.getElementById('difficulty');
 const gameBoardDiv = document.getElementById('game-board');
+const scoreDisplay = document.getElementById('score');
+const timerDisplay = document.getElementById('timer');
 // Game logic, functions, event listeners
 Object.entries(DIFFICULTIES).forEach(function ([key, setting]) {
     // populate the select with our difficulties
@@ -15,13 +17,16 @@ Object.entries(DIFFICULTIES).forEach(function ([key, setting]) {
     difficultySelect.appendChild(option);
 });
 function initGame(difficulty) {
-    // 1. Clear the board
+    // Clear the board
     gameBoardDiv.innerHTML = '';
-    // 2. Set --cols and --rows CSS variables on the board element, also set --tile-size
+    // Set --cols and --rows CSS variables on the board element, also set --tile-size
     gameBoardDiv.style.setProperty('--cols', difficulty.size.width.toString());
     gameBoardDiv.style.setProperty('--rows', difficulty.size.height.toString());
     gameBoardDiv.style.setProperty('--tile-size', difficulty.tileSize);
-    // 3. Loop width * height times, create a tile div, append it
+    // Set timer and score displays
+    scoreDisplay.textContent = difficulty.numberOfMines.toString();
+    timerDisplay.textContent = '00:00';
+    // Loop width * height times, create a tile div, append it
     const totalTiles = difficulty.size.width * difficulty.size.height;
     for (let i = 0; i < totalTiles; i++) {
         const tile = document.createElement('div');
