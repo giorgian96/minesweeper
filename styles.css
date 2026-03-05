@@ -7,7 +7,7 @@
   --accent-hover:   #2563eb;
   --text:           #1e293b;
   --text-muted:     #64748b;
-  --tile-size:      clamp(28px, 5vw, 38px);
+  --tile-size:      38px;
   --tile-unrevealed:#dbeafe;
   --tile-hover:     #bfdbfe;
   --tile-revealed:  #f1f5f9;
