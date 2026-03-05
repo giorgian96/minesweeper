@@ -1,0 +1,17 @@
+{
+  "name": "minesweeper",
+  "version": "1.0.0",
+  "description": "Simple minesweeper game in the browser",
+  "license": "ISC",
+  "author": "Robescu Giorgian Valentin",
+  "type": "module",
+  "main": "minesweeper.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.56.1",
+    "@typescript-eslint/parser": "^8.56.1",
+    "eslint": "^10.0.2"
+  }
+}
