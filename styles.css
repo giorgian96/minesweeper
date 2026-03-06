@@ -156,6 +156,11 @@ body {
   background-color: var(--tile-mine);
 }
 
+.tile.mine::after {
+    content: '💣';
+    font-size: calc(var(--tile-size) * 0.45);
+}
+
 .tile.flagged::after {
   content: '🚩';
   font-size: calc(var(--tile-size) * 0.45);
