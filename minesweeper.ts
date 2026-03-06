@@ -232,9 +232,10 @@ function revealTile(cell: Cell): void {
 
 gameBoard.addEventListener('click', function(event) {
     // left click - reveal tile
+    if (!gameState) return; // we need the gamestate
 
     // check if game is already over
-    if (gameState?.status === GameStatus.Won || gameState?.status === GameStatus.Lost) return;
+    if (gameState.status === GameStatus.Won || gameState.status === GameStatus.Lost) return;
 
     // prevent click on flagged or revealed or non tiles
     const target = event.target as HTMLElement;
@@ -243,13 +244,13 @@ gameBoard.addEventListener('click', function(event) {
     if (target.classList.contains('flagged')) return;
 
     // check if game is just now starting
-    if (gameState?.status === GameStatus.Waiting) {
+    if (gameState.status === GameStatus.Waiting) {
         updateGameStatus(GameStatus.Playing);
     }
 
     const row = parseInt(target.dataset.row!);
     const col = parseInt(target.dataset.col!);
-    const cell = gameState?.board[row]?.[col];
+    const cell = gameState.board[row]?.[col];
     if (!cell) return;
 
     revealTile(cell);
@@ -259,16 +260,27 @@ gameBoard.addEventListener('contextmenu', function(event) {
     // right click - flag tile
     event.preventDefault(); // stops the browser context menu from appearing
 
+    if (!gameState) return; // we need the gamestate
+
     // check if game is already over
-    if (gameState?.status === GameStatus.Won || gameState?.status === GameStatus.Lost) return;
+    if (gameState.status === GameStatus.Won || gameState.status === GameStatus.Lost) return;
 
     const target = event.target as HTMLElement;
     if (!target.classList.contains('tile')) return;
     if (target.classList.contains('revealed')) return;
     target.classList.toggle('flagged');
 
+    // set mine display
+    if (target.classList.contains('flagged')) {
+        gameState.minesRemaining--;
+    } else {
+        gameState.minesRemaining++;
+    }
+
+    updateScoreDisplay();
+
     // check if game is just now starting
-    if (gameState?.status === GameStatus.Waiting) {
+    if (gameState.status === GameStatus.Waiting) {
         updateGameStatus(GameStatus.Playing);
     }
 });
@@ -296,6 +308,11 @@ function updateTimerDisplay(): void {
     const seconds = gameState.timer % 60;
     const formatted = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
     timerDisplay.textContent = formatted;
+}
+
+function updateScoreDisplay(): void {
+    if (!gameState) return;
+    scoreDisplay.textContent = gameState.minesRemaining.toString();
 }
 
 // Initialization
