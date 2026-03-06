@@ -18,6 +18,7 @@ const STATUS_TEXTS = {
     [GameStatus.Lost]: "Oh no! You've lost... 😓",
     [GameStatus.Won]: "Yes! You've won! 😅"
 };
+let timerInterval = null;
 let gameState;
 const difficultySelect = document.getElementById('difficulty');
 const gameBoard = document.getElementById('game-board');
@@ -39,6 +40,12 @@ function updateGameStatus(newStatus) {
         return;
     gameState.status = newStatus;
     updateStatusText();
+    if (newStatus === GameStatus.Playing) {
+        startTimer();
+    }
+    if (newStatus === GameStatus.Won || newStatus === GameStatus.Lost) {
+        stopTimer();
+    }
 }
 Object.entries(DIFFICULTIES).forEach(function ([key, setting]) {
     // populate the select with our difficulties
@@ -48,8 +55,8 @@ Object.entries(DIFFICULTIES).forEach(function ([key, setting]) {
     difficultySelect.appendChild(option);
 });
 function initGame(difficulty) {
-    // Clear the board
-    gameBoard.innerHTML = '';
+    stopTimer(); // Clear the timer
+    gameBoard.innerHTML = ''; // Clear the board
     // Set --cols and --rows CSS variables on the board element, also set --tile-size
     gameBoard.style.setProperty('--cols', difficulty.size.width.toString());
     gameBoard.style.setProperty('--rows', difficulty.size.height.toString());
@@ -182,6 +189,10 @@ gameBoard.addEventListener('click', function (event) {
         return;
     if (target.classList.contains('flagged'))
         return;
+    // check if game is just now starting
+    if (gameState?.status === GameStatus.Waiting) {
+        updateGameStatus(GameStatus.Playing);
+    }
     const row = parseInt(target.dataset.row);
     const col = parseInt(target.dataset.col);
     const cell = gameState?.board[row]?.[col];
@@ -201,8 +212,34 @@ gameBoard.addEventListener('contextmenu', function (event) {
     if (target.classList.contains('revealed'))
         return;
     target.classList.toggle('flagged');
+    // check if game is just now starting
+    if (gameState?.status === GameStatus.Waiting) {
+        updateGameStatus(GameStatus.Playing);
+    }
 });
 newGameBtn.addEventListener('click', restartGame);
+function startTimer() {
+    timerInterval = setInterval(function () {
+        if (!gameState)
+            return;
+        gameState.timer++;
+        updateTimerDisplay();
+    }, 1000);
+}
+function stopTimer() {
+    if (timerInterval !== null) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+}
+function updateTimerDisplay() {
+    if (!gameState)
+        return;
+    const minutes = Math.floor(gameState.timer / 60);
+    const seconds = gameState.timer % 60;
+    const formatted = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    timerDisplay.textContent = formatted;
+}
 // Initialization
 const initialDifficulty = DIFFICULTIES['easy'];
 if (initialDifficulty) {

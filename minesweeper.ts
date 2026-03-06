@@ -46,6 +46,8 @@ const STATUS_TEXTS: Record<GameStatus, string> = {
     [GameStatus.Won]: "Yes! You've won! 😅"
 };
 
+let timerInterval: number | null = null;
+
 let gameState: GameState | null;
 
 const difficultySelect = document.getElementById('difficulty') as HTMLSelectElement;
@@ -71,6 +73,14 @@ function updateGameStatus(newStatus: GameStatus): void {
 
     gameState.status = newStatus;
     updateStatusText();
+
+    if (newStatus === GameStatus.Playing) {
+        startTimer();
+    }
+
+    if (newStatus === GameStatus.Won || newStatus === GameStatus.Lost) {
+        stopTimer();
+    }
 }
 
 Object.entries(DIFFICULTIES).forEach(function ([key, setting]) {
@@ -82,8 +92,8 @@ Object.entries(DIFFICULTIES).forEach(function ([key, setting]) {
 });
 
 function initGame(difficulty: DifficultySetting): void {
-    // Clear the board
-    gameBoard.innerHTML = '';
+    stopTimer(); // Clear the timer
+    gameBoard.innerHTML = ''; // Clear the board
 
     // Set --cols and --rows CSS variables on the board element, also set --tile-size
     gameBoard.style.setProperty('--cols', difficulty.size.width.toString());
@@ -232,6 +242,11 @@ gameBoard.addEventListener('click', function(event) {
     if (target.classList.contains('revealed')) return;
     if (target.classList.contains('flagged')) return;
 
+    // check if game is just now starting
+    if (gameState?.status === GameStatus.Waiting) {
+        updateGameStatus(GameStatus.Playing);
+    }
+
     const row = parseInt(target.dataset.row!);
     const col = parseInt(target.dataset.col!);
     const cell = gameState?.board[row]?.[col];
@@ -251,9 +266,37 @@ gameBoard.addEventListener('contextmenu', function(event) {
     if (!target.classList.contains('tile')) return;
     if (target.classList.contains('revealed')) return;
     target.classList.toggle('flagged');
+
+    // check if game is just now starting
+    if (gameState?.status === GameStatus.Waiting) {
+        updateGameStatus(GameStatus.Playing);
+    }
 });
 
-newGameBtn.addEventListener('click', restartGame)
+newGameBtn.addEventListener('click', restartGame);
+
+function startTimer(): void {
+    timerInterval = setInterval(function() {
+        if (!gameState) return;
+        gameState.timer++;
+        updateTimerDisplay();
+    }, 1000);
+}
+
+function stopTimer(): void {
+    if (timerInterval !== null) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+}
+
+function updateTimerDisplay(): void {
+    if (!gameState) return;
+    const minutes = Math.floor(gameState.timer / 60);
+    const seconds = gameState.timer % 60;
+    const formatted = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    timerDisplay.textContent = formatted;
+}
 
 // Initialization
 const initialDifficulty = DIFFICULTIES['easy'];
