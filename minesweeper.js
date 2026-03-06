@@ -163,12 +163,12 @@ function revealTile(cell) {
     }
     // empty cell — recursively reveal neighbors
     const offsets = [-1, 0, 1];
+    const row = parseInt(cell.element.dataset.row);
+    const col = parseInt(cell.element.dataset.col);
     for (const rowOffset of offsets) {
         for (const colOffset of offsets) {
             if (rowOffset === 0 && colOffset === 0)
                 continue; // both offsets 0 so this is our cell
-            const row = parseInt(cell.element.dataset.row);
-            const col = parseInt(cell.element.dataset.col);
             const neighbor = gameState?.board[row + rowOffset]?.[col + colOffset];
             if (!neighbor)
                 continue;
