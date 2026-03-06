@@ -9,6 +9,7 @@ const difficultySelect = document.getElementById('difficulty');
 const gameBoard = document.getElementById('game-board');
 const scoreDisplay = document.getElementById('score');
 const timerDisplay = document.getElementById('timer');
+const newGameBtn = document.getElementById('new-game');
 // Game logic, functions, event listeners
 Object.entries(DIFFICULTIES).forEach(function ([key, setting]) {
     // populate the select with our difficulties
@@ -99,13 +100,14 @@ function calculateAdjacentMines() {
         }
     }
 }
-difficultySelect.addEventListener('change', function () {
+function restartGame() {
     // get the selected value, look it up in DIFFICULTIES, call initGame
     const selected = DIFFICULTIES[difficultySelect.value];
     if (selected) {
         initGame(selected);
     }
-});
+}
+difficultySelect.addEventListener('change', restartGame);
 function revealTile(cell) {
     if (cell.isRevealed || cell.isFlagged)
         return;
@@ -163,6 +165,7 @@ gameBoard.addEventListener('contextmenu', function (event) {
         return;
     target.classList.toggle('flagged');
 });
+newGameBtn.addEventListener('click', restartGame);
 // Initialization
 const initialDifficulty = DIFFICULTIES['easy'];
 if (initialDifficulty) {
