@@ -54,7 +54,7 @@ function initGame(difficulty) {
         difficulty: difficulty,
         minesRemaining: difficulty.numberOfMines,
         timer: 0,
-        gameStatus: 'waiting'
+        status: 'waiting'
     };
     placeMines();
     calculateAdjacentMines();
