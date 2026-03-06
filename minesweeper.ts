@@ -1,4 +1,11 @@
-// Interfaces
+// Interfaces and enums
+enum GameStatus {
+    Waiting = 'waiting',
+    Playing = 'playing',
+    Won = 'won',
+    Lost = 'lost'
+}
+
 interface Cell {
     isMine: boolean;
     isRevealed: boolean;
@@ -22,7 +29,7 @@ interface GameState {
     difficulty: DifficultySetting;
     minesRemaining: number;
     timer: number;
-    status: 'waiting' | 'playing' | 'won' | 'lost';
+    status: GameStatus;
 }
 
 // Variables & DOM selections
@@ -30,6 +37,13 @@ const DIFFICULTIES: Record<string, DifficultySetting> = {
     easy:   { name: 'Easy',   size: { width: 9,  height: 9  }, numberOfMines: 10, tileSize: '38px' },
     medium: { name: 'Medium', size: { width: 16, height: 16 }, numberOfMines: 40, tileSize: '28px' },
     hard:   { name: 'Hard',   size: { width: 30, height: 16 }, numberOfMines: 99, tileSize: '28px' },
+};
+
+const STATUS_TEXTS: Record<GameStatus, string> = {
+    [GameStatus.Waiting]: "Be careful! Your first click could be a mine 🥶",
+    [GameStatus.Playing]: "I can't look! 🫣",
+    [GameStatus.Lost]: "Oh no! You've lost... 😓",
+    [GameStatus.Won]: "Yes! You've won! 😅"
 };
 
 let gameState: GameState | null;
@@ -41,8 +55,24 @@ const scoreDisplay = document.getElementById('score') as HTMLDivElement;
 const timerDisplay = document.getElementById('timer') as HTMLDivElement;
 
 const newGameBtn = document.getElementById('new-game') as HTMLButtonElement;
+const statusText = document.getElementById('status-text') as HTMLParagraphElement;
 
 // Game logic, functions, event listeners
+function updateStatusText(): void {
+    if (!gameState) return;
+
+    const newStatus = STATUS_TEXTS[gameState.status];
+    if (!newStatus) return;
+    statusText.textContent = newStatus;
+}
+
+function updateGameStatus(newStatus: GameStatus): void {
+    if (!gameState) return;
+
+    gameState.status = newStatus;
+    updateStatusText();
+}
+
 Object.entries(DIFFICULTIES).forEach(function ([key, setting]) {
     // populate the select with our difficulties
     const option = document.createElement('option');
@@ -88,15 +118,16 @@ function initGame(difficulty: DifficultySetting): void {
         theBoard.push(theRow);
     }
 
-    // Set the game state and the mines
+    // Set the game state
     gameState = {
         board: theBoard,
         difficulty: difficulty,
         minesRemaining: difficulty.numberOfMines,
         timer: 0,
-        status: 'waiting'
+        status: GameStatus.Waiting
     }
 
+    updateStatusText();
     placeMines();
     calculateAdjacentMines();
 }
@@ -164,7 +195,8 @@ function revealTile(cell: Cell): void {
 
     if (cell.isMine) {
         cell.element.classList.add('mine');
-        // game over logic comes later
+        // game is over, we lost
+        updateGameStatus(GameStatus.Lost);
         return;
     }
 
@@ -190,7 +222,11 @@ function revealTile(cell: Cell): void {
 
 gameBoard.addEventListener('click', function(event) {
     // left click - reveal tile
-    // first prevent click on flagged or revealed or non tiles
+
+    // check if game is already over
+    if (gameState?.status === GameStatus.Won || gameState?.status === GameStatus.Lost) return;
+
+    // prevent click on flagged or revealed or non tiles
     const target = event.target as HTMLElement;
     if (!target.classList.contains('tile')) return;
     if (target.classList.contains('revealed')) return;
@@ -205,8 +241,12 @@ gameBoard.addEventListener('click', function(event) {
 });
 
 gameBoard.addEventListener('contextmenu', function(event) {
-    event.preventDefault(); // stops the browser context menu from appearing
     // right click - flag tile
+    event.preventDefault(); // stops the browser context menu from appearing
+
+    // check if game is already over
+    if (gameState?.status === GameStatus.Won || gameState?.status === GameStatus.Lost) return;
+
     const target = event.target as HTMLElement;
     if (!target.classList.contains('tile')) return;
     if (target.classList.contains('revealed')) return;

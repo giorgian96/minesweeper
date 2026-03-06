@@ -49,6 +49,14 @@ body {
   max-width: 100%;
 }
 
+#about-game {
+  text-align: center;
+}
+
+#about-game h3 b {
+  color: #ef4444;
+}
+
 /* Heading */
 #heading {
   display: flex;
