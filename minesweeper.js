@@ -201,6 +201,7 @@ gameBoard.addEventListener('click', function (event) {
     if (!cell)
         return;
     revealTile(cell);
+    checkWin();
 });
 gameBoard.addEventListener('contextmenu', function (event) {
     // right click - flag tile
@@ -256,6 +257,14 @@ function updateScoreDisplay() {
     if (!gameState)
         return;
     scoreDisplay.textContent = gameState.minesRemaining.toString();
+}
+function checkWin() {
+    if (!gameState)
+        return;
+    const hasWon = gameState.board.every(row => row.every(cell => cell.isMine || cell.isRevealed));
+    if (hasWon) {
+        updateGameStatus(GameStatus.Won);
+    }
 }
 // Initialization
 const initialDifficulty = DIFFICULTIES['easy'];

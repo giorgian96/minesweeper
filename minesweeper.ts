@@ -254,6 +254,7 @@ gameBoard.addEventListener('click', function(event) {
     if (!cell) return;
 
     revealTile(cell);
+    checkWin();
 });
 
 gameBoard.addEventListener('contextmenu', function(event) {
@@ -313,6 +314,18 @@ function updateTimerDisplay(): void {
 function updateScoreDisplay(): void {
     if (!gameState) return;
     scoreDisplay.textContent = gameState.minesRemaining.toString();
+}
+
+function checkWin(): void {
+    if (!gameState) return;
+
+    const hasWon = gameState.board.every(row =>
+        row.every(cell => cell.isMine || cell.isRevealed)
+    );
+
+    if (hasWon) {
+        updateGameStatus(GameStatus.Won);
+    }
 }
 
 // Initialization
