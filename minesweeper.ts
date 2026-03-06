@@ -22,7 +22,7 @@ interface GameState {
     difficulty: DifficultySetting;
     minesRemaining: number;
     timer: number;
-    gameOver: boolean;
+    gameStatus: 'waiting' | 'playing' | 'won' | 'lost';
 }
 
 // Variables & DOM selections
@@ -94,7 +94,7 @@ function initGame(difficulty: DifficultySetting): void {
         difficulty: difficulty,
         minesRemaining: difficulty.numberOfMines,
         timer: 0,
-        gameOver: false
+        gameStatus: 'waiting'
     }
 
     placeMines();
