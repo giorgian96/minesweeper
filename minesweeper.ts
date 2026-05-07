@@ -330,6 +330,7 @@ function checkWin(): void {
     );
 
     if (hasWon) {
+        playSound('applause-cheer');
         updateGameStatus(GameStatus.Won);
     }
 }

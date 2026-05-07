@@ -266,6 +266,7 @@ function checkWin() {
         return;
     const hasWon = gameState.board.every(row => row.every(cell => cell.isMine || cell.isRevealed));
     if (hasWon) {
+        playSound('applause-cheer');
         updateGameStatus(GameStatus.Won);
     }
 }
