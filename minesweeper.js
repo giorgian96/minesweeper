@@ -18,6 +18,7 @@ const STATUS_TEXTS = {
     [GameStatus.Lost]: "Oh no! You've lost... 😓",
     [GameStatus.Won]: "Yes! You've won! 😅"
 };
+const soundCache = new Map();
 let timerInterval = null;
 let gameState;
 const difficultySelect = document.getElementById('difficulty');
@@ -153,6 +154,8 @@ function revealTile(cell) {
     if (cell.isMine) {
         cell.element.classList.add('mine');
         // game is over, we lost
+        // Play explosion sound before changing game state
+        playSound('explosion');
         updateGameStatus(GameStatus.Lost);
         return;
     }
@@ -265,6 +268,21 @@ function checkWin() {
     if (hasWon) {
         updateGameStatus(GameStatus.Won);
     }
+}
+function playSound(soundName) {
+    // Check if we already have this sound loaded
+    let sound = soundCache.get(soundName);
+    if (!sound) {
+        // If not, create it once and store it
+        sound = new Audio(`/sounds/${soundName}.mp3`);
+        soundCache.set(soundName, sound);
+    }
+    // Reset to the beginning (in case it was already playing)
+    sound.currentTime = 0;
+    // Attempt to play
+    sound.play().catch(error => {
+        console.warn(`Could not play sound "${soundName}":`, error);
+    });
 }
 // Initialization
 const initialDifficulty = DIFFICULTIES['easy'];

@@ -46,6 +46,8 @@ const STATUS_TEXTS: Record<GameStatus, string> = {
     [GameStatus.Won]: "Yes! You've won! 😅"
 };
 
+const soundCache = new Map<string, HTMLAudioElement>();
+
 let timerInterval: number | null = null;
 
 let gameState: GameState | null;
@@ -206,6 +208,8 @@ function revealTile(cell: Cell): void {
     if (cell.isMine) {
         cell.element.classList.add('mine');
         // game is over, we lost
+        // Play explosion sound before changing game state
+        playSound('explosion');
         updateGameStatus(GameStatus.Lost);
         return;
     }
@@ -328,6 +332,25 @@ function checkWin(): void {
     if (hasWon) {
         updateGameStatus(GameStatus.Won);
     }
+}
+
+function playSound(soundName: string): void {
+    // Check if we already have this sound loaded
+    let sound = soundCache.get(soundName);
+    
+    if (!sound) {
+        // If not, create it once and store it
+        sound = new Audio(`/sounds/${soundName}.mp3`);
+        soundCache.set(soundName, sound);
+    }
+    
+    // Reset to the beginning (in case it was already playing)
+    sound.currentTime = 0;
+    
+    // Attempt to play
+    sound.play().catch(error => {
+        console.warn(`Could not play sound "${soundName}":`, error);
+    });
 }
 
 // Initialization
