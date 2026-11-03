@@ -341,7 +341,7 @@ function playSound(soundName: string): void {
     
     if (!sound) {
         // If not, create it once and store it
-        sound = new Audio(`/sounds/${soundName}.mp3`);
+        sound = new Audio(`./sounds/${soundName}.mp3`);
         soundCache.set(soundName, sound);
     }
     

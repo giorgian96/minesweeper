@@ -1,3 +1,4 @@
+"use strict";
 // Interfaces and enums
 var GameStatus;
 (function (GameStatus) {
@@ -275,7 +276,7 @@ function playSound(soundName) {
     let sound = soundCache.get(soundName);
     if (!sound) {
         // If not, create it once and store it
-        sound = new Audio(`/sounds/${soundName}.mp3`);
+        sound = new Audio(`./sounds/${soundName}.mp3`);
         soundCache.set(soundName, sound);
     }
     // Reset to the beginning (in case it was already playing)
@@ -290,5 +291,4 @@ const initialDifficulty = DIFFICULTIES['easy'];
 if (initialDifficulty) {
     initGame(initialDifficulty);
 }
-export {};
 //# sourceMappingURL=minesweeper.js.map
